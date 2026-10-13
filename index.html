@@ -20,7 +20,6 @@ button{border:0;background:#2459a9;color:white}
 <h2>📚 Tarix Milliy Sertifikat</h2>
 <p>Bilimingizni sinang!</p>
 </header>
-
 <div class="card">
 <h3>📝 Test topshirish</h3>
 <label for="testCode">Test kodini kiriting:</label>
@@ -28,21 +27,27 @@ button{border:0;background:#2459a9;color:white}
 <button onclick="joinTest()">Testga kirish</button>
 <p id="message"></p>
 </div>
-
 <script>
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram ? window.Telegram.WebApp : null;
+if (tg) {
 tg.ready();
 tg.expand();
-
-function joinTest(){
-  const code = document.getElementById('testCode').value.trim().toUpperCase();
-  if(!/^[A-Z0-9]{6}$/.test(code)){
-    document.getElementById('message').textContent =
-      '6 belgili test kodini kiriting.';
-    return;
-  }
-  tg.sendData(JSON.stringify({action:'join_test', code:code}));
+}
+function joinTest() {
+const message = document.getElementById('message');
+const code = document.getElementById('testCode').value.trim().toUpperCase();
+if (!/^[A-Z0-9]{6}$/.test(code)) {
+message.textContent = '6 belgili test kodini kiriting.';
+return;
+}
+if (!tg || typeof tg.sendData !== 'function') {
+message.textContent = 'Telegram bot ichidan oching.';
+return;
+}
+message.textContent = 'Kod yuborilmoqda...';
+tg.sendData(JSON.stringify({action: 'join_test', code: code}));
 }
 </script>
 </body>
+
 </html>
