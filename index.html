@@ -6,48 +6,118 @@
 <title>Tarix Milliy Sertifikat</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-body{font-family:Arial,sans-serif;background:#f1f5f9;color:#172554;padding:18px}
-header,.card{padding:20px;border-radius:16px;margin-bottom:16px}
-header{background:#173b75;color:white}
+*{box-sizing:border-box}
+body{
+  font-family:Arial,sans-serif;
+  background:#f1f5f9;
+  color:#172554;
+  padding:18px;
+  margin:0
+}
+header,.card{
+  padding:20px;
+  border-radius:16px;
+  margin-bottom:16px
+}
+header{
+  background:#173b75;
+  color:white;
+  text-align:center
+}
 .card{background:white}
-input,button{box-sizing:border-box;width:100%;padding:14px;margin-top:10px;border-radius:10px;font-size:16px}
-input{border:1px solid #cbd5e1;text-transform:uppercase}
-button{border:0;background:#2459a9;color:white}
+h3{margin-top:0}
+input,button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border-radius:10px;
+  font-size:16px
+}
+input{border:1px solid #cbd5e1}
+button{
+  border:0;
+  background:#2459a9;
+  color:white;
+  font-weight:bold
+}
+.history{background:#0f766e}
+#message{
+  white-space:pre-line;
+  line-height:1.6
+}
 </style>
 </head>
 <body>
+
 <header>
-<h2>📚 Tarix Milliy Sertifikat</h2>
-<p>Bilimingizni sinang!</p>
+  <h2>📚 Tarix Milliy Sertifikat</h2>
+  <p>Bilimingizni sinang!</p>
 </header>
+
 <div class="card">
-<h3>📝 Test topshirish</h3>
-<label for="testCode">Test kodini kiriting:</label>
-<input id="testCode" maxlength="6" placeholder="Masalan: KMF7FA">
-<button onclick="joinTest()">Testga kirish</button>
-<p id="message"></p>
+  <h3>📝 Test topshirish</h3>
+  <label for="testCode">Test kodini kiriting:</label>
+  <input id="testCode" maxlength="6"
+         placeholder="Masalan: KMF7FA">
+  <button onclick="joinTest()">Testga kirish</button>
 </div>
+
+<div class="card">
+  <h3>📊 O‘quvchi bo‘limi</h3>
+  <p>Avvalgi test natijalaringizni ko‘ring.</p>
+  <button class="history" onclick="showHistory()">
+    📊 Reyting tarixi
+  </button>
+  <p id="message"></p>
+</div>
+
 <script>
 const tg = window.Telegram ? window.Telegram.WebApp : null;
+
 if (tg) {
-tg.ready();
-tg.expand();
+  tg.ready();
+  tg.expand();
 }
+
 function joinTest() {
-const message = document.getElementById('message');
-const code = document.getElementById('testCode').value.trim().toUpperCase();
-if (!/^[A-Z0-9]{6}$/.test(code)) {
-message.textContent = '6 belgili test kodini kiriting.';
-return;
+  const message = document.getElementById('message');
+  const code = document.getElementById('testCode')
+    .value.trim().toUpperCase();
+
+  if (!/^[A-Z0-9]{6}$/.test(code)) {
+    message.textContent = '6 belgili test kodini kiriting.';
+    return;
+  }
+
+  if (!tg || typeof tg.sendData !== 'function') {
+    message.textContent = 'Telegram bot ichidan oching.';
+    return;
+  }
+
+  message.textContent = 'Test kodi yuborilmoqda...';
+  tg.sendData(JSON.stringify({
+    action: 'join_test',
+    code: code
+  }));
 }
-if (!tg || typeof tg.sendData !== 'function') {
-message.textContent = 'Telegram bot ichidan oching.';
-return;
-}
-message.textContent = 'Kod yuborilmoqda...';
-tg.sendData(JSON.stringify({action: 'join_test', code: code}));
+
+function showHistory() {
+  const message = document.getElementById('message');
+
+  if (!tg || typeof tg.sendData !== 'function') {
+    message.textContent = 'Telegram bot ichidan oching.';
+    return;
+  }
+
+  message.textContent = 'Reyting tarixi so‘ralmoqda...';
+  tg.sendData(JSON.stringify({
+    action: 'history'
+  }));
 }
 </script>
-</body>
 
+</body>
 </html>
+
+
+
