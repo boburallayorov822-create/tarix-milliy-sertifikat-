@@ -1,1 +1,0 @@
-# tarix-milliy-sertifikat-
