@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarix Milliy Sertifikat</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body{font-family:Arial;background:#f1f5f9;color:#172554;padding:18px}
+header,.card{padding:20px;border-radius:16px;margin-bottom:16px}
+header{background:#173b75;color:white}
+.card{background:white}
+button{width:100%;padding:15px;border:0;border-radius:10px;background:#2459a9;color:white;font-size:16px}
+</style>
+</head>
+<body>
+<header>
+<h2>📚 Tarix Milliy Sertifikat</h2>
+<p>Bilimingizni sinang!</p>
+</header>
+<div class="card">
+<h3>📝 Test topshirish</h3>
+<p>Testni bot orqali boshlang.</p>
+<button onclick="Telegram.WebApp.sendData('start_test')">Testni boshlash</button>
+</div>
+<div class="card">
+<h3>📊 Natijalar</h3>
+<p>Natijalarni bot orqali ko‘ring.</p>
+</div>
+<script>
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
+</script>
+</body>
+</html>
