@@ -2,173 +2,171 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tarix Milliy Sertifikat</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarix Milliy Sertifikat</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background: #f1f5f9;
-  color: #172554;
-  padding: 16px;
-  margin: 0;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172554;
+      padding: 16px;
+      margin: 0;
+    }
 
-header {
-  background: #173b75;
-  color: white;
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 16px;
-}
+    header {
+      background: #173b75;
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
 
-.card {
-  background: white;
-  padding: 16px;
-  border-radius: 14px;
-  margin-bottom: 12px;
-}
+    .card {
+      background: white;
+      padding: 16px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
 
-button, input {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border-radius: 10px;
-  font-size: 16px;
-}
+    button, input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 10px;
+      font-size: 16px;
+    }
 
-button {
-  border: 0;
-  background: #2459a9;
-  color: white;
-  font-weight: bold;
-}
+    button {
+      border: 0;
+      background: #2459a9;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-.secondary {
-  background: #e2e8f0;
-  color: #172554;
-}
+    .secondary {
+      background: #e2e8f0;
+      color: #172554;
+    }
 
-#panel {
-  display: none;
-}
-</style>
+    #panel {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
+  <header>
+    <h2>📚 Tarix Milliy Sertifikat</h2>
+    <p>Bilimingizni sinang!</p>
+  </header>
 
-<header>
-  <h2>📚 Tarix Milliy Sertifikat</h2>
-  <p>Bilimingizni sinang!</p>
-</header>
+  <div id="menu" class="card">
+    <h3>Asosiy menyu</h3>
 
-<div id="menu" class="card">
-  <h3>Asosiy menyu</h3>
+    <button onclick="openPanel('test')">
+      📝 Test ishlash
+    </button>
 
-  <button onclick="openPanel('test')">
-    📝 Test ishlash
-  </button>
+    <button class="secondary" onclick="sendAction('my_result')">
+      📊 Mening natijam
+    </button>
 
-  <button class="secondary" onclick="sendAction('my_result')">
-    📊 Mening natijam
-  </button>
+    <div id="adminArea"></div>
+  </div>
 
-  <div id="adminArea"></div>
-</div>
+  <div id="panel" class="card">
+    <h3 id="panelTitle"></h3>
 
-<div id="panel" class="card">
-  <h3 id="panelTitle"></h3>
+    <div id="testForm" style="display:none">
+      <label for="testCode">6 belgili test kodi:</label>
 
-  <div id="testForm" style="display:none">
-    <label>6 belgili test kodi:</label>
+      <input
+        id="testCode"
+        type="text"
+        maxlength="6"
+        placeholder="Masalan: KMF7FA"
+        autocomplete="off"
+      >
 
-    <input
-      id="testCode"
-      maxlength="6"
-      placeholder="Masalan: KMF7FA"
-    >
+      <button onclick="joinTest()">
+        Testga kirish
+      </button>
+    </div>
 
-    <button onclick="joinTest()">
-      Testga kirish
+    <div id="adminForm" style="display:none">
+      <p>
+        Javob kalitlarini boshqarish uchun botda avval
+        /usetest TESTKODI buyrug‘i bilan testni tanlang.
+      </p>
+
+      <button onclick="sendAction('admin_keys')">
+        🔑 Kalitlar bo‘limini ochish
+      </button>
+    </div>
+
+    <p id="message"></p>
+
+    <button class="secondary" onclick="backMenu()">
+      ⬅️ Orqaga
     </button>
   </div>
 
-  <div id="adminForm" style="display:none">
-    <p>
-      Javob kalitlarini boshqarish uchun botda avval
-      /usetest TESTKODI buyrug‘i bilan testni tanlang.
-    </p>
+  <script>
+    const tg = window.Telegram.WebApp;
 
-    <button onclick="sendAction('admin_keys')">
-      🔑 Kalitlar bo‘limini ochish
-    </button>
-  </div>
+    tg.ready();
+    tg.expand();
 
-  <p id="message"></p>
+    function openPanel(type) {
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('panel').style.display = 'block';
 
-  <button class="secondary" onclick="backMenu()">
-    ⬅️ Orqaga
-  </button>
-</div>
+      document.getElementById('testForm').style.display =
+        type === 'test' ? 'block' : 'none';
 
-<script>
-const tg = window.Telegram.WebApp;
+      document.getElementById('adminForm').style.display =
+        type === 'admin' ? 'block' : 'none';
 
-tg.ready();
-tg.expand();
+      document.getElementById('panelTitle').textContent =
+        type === 'test'
+          ? '📝 Test ishlash'
+          : '🔑 Javob kalitlari';
 
-function openPanel(type) {
-  document.getElementById('menu').style.display = 'none';
-  document.getElementById('panel').style.display = 'block';
+      document.getElementById('message').textContent = '';
+    }
 
-  document.getElementById('testForm').style.display =
-    type === 'test' ? 'block' : 'none';
+    function backMenu() {
+      document.getElementById('panel').style.display = 'none';
+      document.getElementById('menu').style.display = 'block';
+    }
 
-  document.getElementById('adminForm').style.display =
-    type === 'admin' ? 'block' : 'none';
+    function sendAction(action) {
+      tg.sendData(JSON.stringify({ action: action }));
+    }
 
-  document.getElementById('panelTitle').textContent =
-    type === 'test'
-      ? '📝 Test ishlash'
-      : '🔑 Javob kalitlari';
+    function joinTest() {
+      const input = document.getElementById('testCode');
+      const code = input.value.trim().toUpperCase();
 
-  document.getElementById('message').textContent = '';
-}
+      if (!/^[A-Z0-9]{6}$/.test(code)) {
+        document.getElementById('message').textContent =
+          '6 belgili test kodini kiriting.';
+        return;
+      }
 
-function backMenu() {
-  document.getElementById('panel').style.display = 'none';
-  document.getElementById('menu').style.display = 'block';
-}
-
-function sendAction(action) {
-  tg.sendData(JSON.stringify({ action: action }));
-}
-
-function joinTest() {
-  const code = document
-    .getElementById('testCode')
-    .value
-    .trim()
-    .toUpperCase();
-
-  if (!/^[A-Z0-9]{6}$/.test(code)) {
-    document.getElementById('message').textContent =
-      '6 belgili test kodini kiriting.';
-    return;
-  }
-
-  tg.sendData(JSON.stringify({
-    action: 'join_test',
-    code: code
-  }));
-}
-</script>
-
+      tg.sendData(JSON.stringify({
+        action: 'join_test',
+        code: code
+      }));
+    }
+  </script>
 </body>
 </html>
