@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -5,102 +6,169 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tarix Milliy Sertifikat</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
-*{box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#f1f5f9;color:#172554;padding:16px;margin:0}
-header{background:#173b75;color:white;padding:20px;border-radius:16px;margin-bottom:16px}
-.card{background:white;padding:16px;border-radius:14px;margin-bottom:12px}
-button,input{width:100%;padding:14px;margin-top:10px;border-radius:10px;font-size:16px}
-button{border:0;background:#2459a9;color:white;font-weight:bold}
-input{border:1px solid #cbd5e1}
-.secondary{background:#e2e8f0;color:#172554}
-#panel{display:none}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #172554;
+  padding: 16px;
+  margin: 0;
+}
+
+header {
+  background: #173b75;
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+button, input {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+button {
+  border: 0;
+  background: #2459a9;
+  color: white;
+  font-weight: bold;
+}
+
+.secondary {
+  background: #e2e8f0;
+  color: #172554;
+}
+
+#panel {
+  display: none;
+}
 </style>
 </head>
+
 <body>
+
 <header>
-<h2>📚 Tarix Milliy Sertifikat</h2>
-<p>Bilimingizni sinang!</p>
+  <h2>📚 Tarix Milliy Sertifikat</h2>
+  <p>Bilimingizni sinang!</p>
 </header>
 
 <div id="menu" class="card">
-<h3>Asosiy menyu</h3>
-<button onclick="openPanel('test')">📝 Test ishlash</button>
-<button class="secondary" onclick="sendAction('my_result')">📊 Mening natijam</button>
-<button class="secondary" onclick="sendAction('history')">📚 Testlar tarixi</button>
-<button class="secondary" onclick="openPanel('profile')">👤 Profilim</button>
-<div id="adminArea"></div>
+  <h3>Asosiy menyu</h3>
+
+  <button onclick="openPanel('test')">
+    📝 Test ishlash
+  </button>
+
+  <button class="secondary" onclick="sendAction('my_result')">
+    📊 Mening natijam
+  </button>
+
+  <div id="adminArea"></div>
 </div>
 
 <div id="panel" class="card">
-<h3 id="panelTitle"></h3>
+  <h3 id="panelTitle"></h3>
 
-<div id="profileForm" style="display:none">
-<label>Ism va familiyangiz:</label>
-<input id="fullName" maxlength="80" placeholder="Masalan: Ali Valiyev">
-<button onclick="saveProfile()">Saqlash</button>
-</div>
+  <div id="testForm" style="display:none">
+    <label>6 belgili test kodi:</label>
 
-<div id="testForm" style="display:none">
-<label>6 belgili test kodi:</label>
-<input id="testCode" maxlength="6" placeholder="Masalan: KMF7FA">
-<button onclick="joinTest()">Testga kirish</button>
-</div>
+    <input
+      id="testCode"
+      maxlength="6"
+      placeholder="Masalan: KMF7FA"
+    >
 
-<div id="adminForm" style="display:none">
-<p>Javob kalitlarini boshqarish uchun botda avval /usetest TESTKODI buyrug‘i bilan testni tanlang.</p>
-<button onclick="sendAction('admin_keys')">🔑 Kalitlar bo‘limini ochish</button>
-</div>
+    <button onclick="joinTest()">
+      Testga kirish
+    </button>
+  </div>
 
-<p id="message"></p>
-<button class="secondary" onclick="backMenu()">⬅️ Orqaga</button>
+  <div id="adminForm" style="display:none">
+    <p>
+      Javob kalitlarini boshqarish uchun botda avval
+      /usetest TESTKODI buyrug‘i bilan testni tanlang.
+    </p>
+
+    <button onclick="sendAction('admin_keys')">
+      🔑 Kalitlar bo‘limini ochish
+    </button>
+  </div>
+
+  <p id="message"></p>
+
+  <button class="secondary" onclick="backMenu()">
+    ⬅️ Orqaga
+  </button>
 </div>
 
 <script>
 const tg = window.Telegram.WebApp;
+
 tg.ready();
 tg.expand();
 
-function openPanel(type){
- document.getElementById('menu').style.display='none';
- document.getElementById('panel').style.display='block';
- document.getElementById('profileForm').style.display=type==='profile'?'block':'none';
- document.getElementById('testForm').style.display=type==='test'?'block':'none';
- document.getElementById('adminForm').style.display=type==='admin'?'block':'none';
- document.getElementById('panelTitle').textContent=
- type==='profile'?'👤 Profilim':type==='test'?'📝 Test ishlash':'🔑 Javob kalitlari';
- document.getElementById('message').textContent='';
+function openPanel(type) {
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+
+  document.getElementById('testForm').style.display =
+    type === 'test' ? 'block' : 'none';
+
+  document.getElementById('adminForm').style.display =
+    type === 'admin' ? 'block' : 'none';
+
+  document.getElementById('panelTitle').textContent =
+    type === 'test'
+      ? '📝 Test ishlash'
+      : '🔑 Javob kalitlari';
+
+  document.getElementById('message').textContent = '';
 }
 
-function backMenu(){
- document.getElementById('panel').style.display='none';
- document.getElementById('menu').style.display='block';
+function backMenu() {
+  document.getElementById('panel').style.display = 'none';
+  document.getElementById('menu').style.display = 'block';
 }
 
-function sendAction(action){
- tg.sendData(JSON.stringify({action:action}));
+function sendAction(action) {
+  tg.sendData(JSON.stringify({ action: action }));
 }
 
-function saveProfile(){
- const name=document.getElementById('fullName').value.trim();
- if(name.split(/\s+/).length<2){
-  document.getElementById('message').textContent='Ism va familiyangizni kiriting.';
-  return;
- }
- tg.sendData(JSON.stringify({action:'save_profile',name:name}));
-}
+function joinTest() {
+  const code = document
+    .getElementById('testCode')
+    .value
+    .trim()
+    .toUpperCase();
 
-function joinTest(){
- const code=document.getElementById('testCode').value.trim().toUpperCase();
- if(!/^[A-Z0-9]{6}$/.test(code)){
-  document.getElementById('message').textContent='6 belgili test kodini kiriting.';
-  return;
- }
- tg.sendData(JSON.stringify({action:'join_test',code:code}));
+  if (!/^[A-Z0-9]{6}$/.test(code)) {
+    document.getElementById('message').textContent =
+      '6 belgili test kodini kiriting.';
+    return;
+  }
+
+  tg.sendData(JSON.stringify({
+    action: 'join_test',
+    code: code
+  }));
 }
 </script>
+
 </body>
 </html>
-
-
-
