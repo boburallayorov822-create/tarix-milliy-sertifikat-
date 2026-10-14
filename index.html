@@ -1,172 +1,222 @@
-
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tarix Milliy Sertifikat</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      color: #172554;
-      padding: 16px;
-      margin: 0;
-    }
-
-    header {
-      background: #173b75;
-      color: white;
-      padding: 20px;
-      border-radius: 16px;
-      margin-bottom: 16px;
-    }
-
-    .card {
-      background: white;
-      padding: 16px;
-      border-radius: 14px;
-      margin-bottom: 12px;
-    }
-
-    button, input {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-
-    button {
-      border: 0;
-      background: #2459a9;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .secondary {
-      background: #e2e8f0;
-      color: #172554;
-    }
-
-    #panel {
-      display: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarix Milliy Sertifikat</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:15px;background:#f1f5f9;color:#172554;font-family:Arial,sans-serif}
+header,.card{padding:17px;border-radius:15px;margin-bottom:14px}
+header{background:#173b75;color:white}
+.card{background:white}
+button,input{width:100%;padding:13px;margin-top:9px;border-radius:10px;font-size:16px}
+button{border:0;background:#2459a9;color:white;font-weight:bold}
+button:disabled{opacity:.5}
+input{border:1px solid #cbd5e1}
+.option{background:#e8eef8;color:#172554;text-align:left;font-weight:normal}
+.option.selected{background:#2459a9;color:white}
+.secondary{background:#e2e8f0;color:#172554}
+.note{color:#64748b;font-size:13px}
+#testArea{display:none}
+#error{color:#b91c1c;white-space:pre-wrap}
+</style>
 </head>
-
 <body>
-  <header>
-    <h2>📚 Tarix Milliy Sertifikat</h2>
-    <p>Bilimingizni sinang!</p>
-  </header>
+<header>
+<h2>📚 Tarix Milliy Sertifikat</h2>
+<p>Bilimingizni sinang!</p>
+</header>
 
-  <div id="menu" class="card">
-    <h3>Asosiy menyu</h3>
+<div class="card" id="menu">
+<h3>📝 Test ishlash</h3>
+<label>6 belgili test kodi:</label>
+<input id="code" maxlength="6" placeholder="Masalan: XOR3YY">
+<button onclick="startTest()">Testni boshlash</button>
+<p class="note">Test savollari shu oynada ko‘rsatiladi.</p>
+<p id="error"></p>
+</div>
 
-    <button onclick="openPanel('test')">
-      📝 Test ishlash
-    </button>
+<div class="card" id="testArea">
+<h3 id="testName">Tarix testi</h3>
+<p id="progress"></p>
+<hr>
+<h3 id="question"></h3>
+<div id="options"></div>
+<div id="writtenArea" style="display:none">
+<input id="written" placeholder="Javobingizni yozing">
+<button onclick="saveWritten()">Javobni saqlash</button>
+</div>
+<p id="status" class="note"></p>
+<div style="display:flex;gap:8px">
+<button class="secondary" id="prev" onclick="move(-1)">⬅️ Oldingi</button>
+<button id="next" onclick="move(1)">Keyingi ➡️</button>
+</div>
+<button id="finish" onclick="finishTest()">✅ Testni yakunlash</button>
+<p id="testError"></p>
+</div>
 
-    <button class="secondary" onclick="sendAction('my_result')">
-      📊 Mening natijam
-    </button>
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
 
-    <div id="adminArea"></div>
-  </div>
+// Amaldagi Cloudflare tunnel manzili:
+const API = 'https://posters-amino-tooth-gates.trycloudflare.com';
+let code = '';
+let questions = [];
+let index = 0;
+const answers = {};
 
-  <div id="panel" class="card">
-    <h3 id="panelTitle"></h3>
+async function api(path, data={}) {
+  const response = await fetch(API + path, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      ...data,
+      initData:tg.initData
+    })
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'Xatolik yuz berdi.');
+  return result;
+}
 
-    <div id="testForm" style="display:none">
-      <label for="testCode">6 belgili test kodi:</label>
+function showError(id, message) {
+  document.getElementById(id).textContent = message;
+}
 
-      <input
-        id="testCode"
-        type="text"
-        maxlength="6"
-        placeholder="Masalan: KMF7FA"
-        autocomplete="off"
-      >
+async function startTest() {
+  code = document.getElementById('code').value.trim().toUpperCase();
+  showError('error','');
+  if (!/^[A-Z0-9]{6}$/.test(code)) {
+    showError('error','6 belgili test kodini kiriting.');
+    return;
+  }
+  try {
+    const data = await api('/api/start',{code});
+    questions = data.questions;
+    index = 0;
+    for (const key in answers) delete answers[key];
+    document.getElementById('testName').textContent = data.name;
+    document.getElementById('menu').style.display='none';
+    document.getElementById('testArea').style.display='block';
+    renderQuestion();
+  } catch(e) {
+    showError('error',e.message);
+  }
+}
 
-      <button onclick="joinTest()">
-        Testga kirish
-      </button>
-    </div>
+function splitQuestion(text) {
+  const re = /(?:^|\s)([ABCD])\)\s*/g;
+  const matches = [...text.matchAll(re)];
+  if (!matches.length) return {stem:text, options:[]};
+  const stem = text.slice(0,matches[0].index).trim();
+  const options = [];
+  for (let i=0;i<matches.length;i++) {
+    const start = matches[i].index + matches[i][0].length;
+    const end = i+1<matches.length ? matches[i+1].index : text.length;
+    options.push({
+      letter:matches[i][1],
+      text:text.slice(start,end).trim()
+    });
+  }
+  return {stem:stem || text,options};
+}
 
-    <div id="adminForm" style="display:none">
-      <p>
-        Javob kalitlarini boshqarish uchun botda avval
-        /usetest TESTKODI buyrug‘i bilan testni tanlang.
-      </p>
+function renderQuestion() {
+  const q = questions[index];
+  const parsed = splitQuestion(q.question || '');
+  document.getElementById('progress').textContent =
+    `Savol ${index+1} / ${questions.length}`;
+  document.getElementById('question').textContent =
+    `${q.number}. ${parsed.stem}`;
+  document.getElementById('options').innerHTML='';
+  document.getElementById('writtenArea').style.display =
+    q.type==='written' ? 'block':'none';
+  document.getElementById('written').value=answers[q.number] || '';
+  document.getElementById('status').textContent='';
+  document.getElementById('testError').textContent='';
 
-      <button onclick="sendAction('admin_keys')">
-        🔑 Kalitlar bo‘limini ochish
-      </button>
-    </div>
-
-    <p id="message"></p>
-
-    <button class="secondary" onclick="backMenu()">
-      ⬅️ Orqaga
-    </button>
-  </div>
-
-  <script>
-    const tg = window.Telegram.WebApp;
-
-    tg.ready();
-    tg.expand();
-
-    function openPanel(type) {
-      document.getElementById('menu').style.display = 'none';
-      document.getElementById('panel').style.display = 'block';
-
-      document.getElementById('testForm').style.display =
-        type === 'test' ? 'block' : 'none';
-
-      document.getElementById('adminForm').style.display =
-        type === 'admin' ? 'block' : 'none';
-
-      document.getElementById('panelTitle').textContent =
-        type === 'test'
-          ? '📝 Test ishlash'
-          : '🔑 Javob kalitlari';
-
-      document.getElementById('message').textContent = '';
+  if(q.type==='written') {
+    document.getElementById('options').style.display='none';
+  } else {
+    document.getElementById('options').style.display='block';
+    if(!parsed.options.length) {
+      document.getElementById('options').textContent =
+        'Variantlar savol matnida A), B), C), D) ko‘rinishida bo‘lishi kerak.';
     }
+    parsed.options.forEach(opt=>{
+      const b=document.createElement('button');
+      b.className='option'+(answers[q.number]===opt.letter?' selected':'');
+      b.textContent=opt.letter+') '+opt.text;
+      b.onclick=()=>saveChoice(opt.letter);
+      document.getElementById('options').appendChild(b);
+    });
+  }
+  document.getElementById('prev').disabled=index===0;
+  document.getElementById('next').textContent =
+    index===questions.length-1 ? 'Oxirgi savol':'Keyingi ➡️';
+}
 
-    function backMenu() {
-      document.getElementById('panel').style.display = 'none';
-      document.getElementById('menu').style.display = 'block';
-    }
+async function saveChoice(letter) {
+  const q=questions[index];
+  try {
+    await api('/api/answer',{code,number:q.number,answer:letter});
+    answers[q.number]=letter;
+    renderQuestion();
+    document.getElementById('status').textContent='Javob saqlandi ✓';
+  } catch(e) {
+    showError('testError',e.message);
+  }
+}
 
-    function sendAction(action) {
-      tg.sendData(JSON.stringify({ action: action }));
-    }
+async function saveWritten() {
+  const q=questions[index];
+  const value=document.getElementById('written').value.trim();
+  try {
+    await api('/api/answer',{code,number:q.number,answer:value});
+    answers[q.number]=value;
+    document.getElementById('status').textContent='Javob saqlandi ✓';
+  } catch(e) {
+    showError('testError',e.message);
+  }
+}
 
-    function joinTest() {
-      const input = document.getElementById('testCode');
-      const code = input.value.trim().toUpperCase();
+async function move(step) {
+  const q=questions[index];
+  if(q.type==='written' &&
+     document.getElementById('written').value.trim()!==(answers[q.number]||'')) {
+    await saveWritten();
+    if(document.getElementById('testError').textContent) return;
+  }
+  index=Math.max(0,Math.min(questions.length-1,index+step));
+  renderQuestion();
+}
 
-      if (!/^[A-Z0-9]{6}$/.test(code)) {
-        document.getElementById('message').textContent =
-          '6 belgili test kodini kiriting.';
-        return;
-      }
-
-      tg.sendData(JSON.stringify({
-        action: 'join_test',
-        code: code
-      }));
-    }
-  </script>
+async function finishTest() {
+  if(!confirm('Testni yakunlaysizmi? Javoblaringiz tekshiriladi.')) return;
+  const q=questions[index];
+  if(q.type==='written' &&
+     document.getElementById('written').value.trim()!==(answers[q.number]||'')) {
+    await saveWritten();
+    if(document.getElementById('testError').textContent) return;
+  }
+  try {
+    document.getElementById('finish').disabled=true;
+    const result=await api('/api/finish',{code});
+    document.getElementById('testArea').innerHTML =
+      `<h2>🎉 Test yakunlandi!</h2>
+       <p>${result.name}</p>
+       <h1>${result.score} / ${result.total}</h1>
+       <h3>Natija: ${result.percent}%</h3>
+       <p>Natijangiz saqlandi.</p>`;
+  } catch(e) {
+    showError('testError',e.message);
+    document.getElementById('finish').disabled=false;
+  }
+}
+</script>
 </body>
 </html>
