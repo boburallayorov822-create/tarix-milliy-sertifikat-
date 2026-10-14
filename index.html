@@ -109,20 +109,17 @@ async function startTest() {
 }
 
 function splitQuestion(text) {
-  const re = /(?:^|\s)([ABCD])\)\s*/g;
-  const matches = [...text.matchAll(re)];
-  if (!matches.length) return {stem:text, options:[]};
-  const stem = text.slice(0,matches[0].index).trim();
+  const re = /(?:^|\s|[\r\n])([ABCD])[\).]\s*/g;
+  const matches = [...String(text).matchAll(re)];
+  if (matches.length < 2) return {stem:String(text),options:[]};
+  const stem = String(text).slice(0,matches[0].index).trim();
   const options = [];
   for (let i=0;i<matches.length;i++) {
     const start = matches[i].index + matches[i][0].length;
-    const end = i+1<matches.length ? matches[i+1].index : text.length;
-    options.push({
-      letter:matches[i][1],
-      text:text.slice(start,end).trim()
-    });
+    const end = i+1<matches.length ? matches[i+1].index : String(text).length;
+    options.push({letter:matches[i][1],text:String(text).slice(start,end).trim()});
   }
-  return {stem:stem || text,options};
+  return {stem:stem || String(text),options};
 }
 
 function renderQuestion() {
@@ -165,7 +162,7 @@ async function saveChoice(letter) {
   try {
     await api('/api/answer',{code,number:q.number,answer:letter});
     answers[q.number]=letter;
-    if (index < 34) {
+    if (index < questions.length - 1) {
       index++;
       renderQuestion();
     } else {
