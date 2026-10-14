@@ -165,8 +165,13 @@ async function saveChoice(letter) {
   try {
     await api('/api/answer',{code,number:q.number,answer:letter});
     answers[q.number]=letter;
-    renderQuestion();
-    document.getElementById('status').textContent='Javob saqlandi ✓';
+    if (index < 34) {
+      index++;
+      renderQuestion();
+    } else {
+      renderQuestion();
+      document.getElementById('status').textContent='Javob saqlandi ✓';
+    }
   } catch(e) {
     showError('testError',e.message);
   }
