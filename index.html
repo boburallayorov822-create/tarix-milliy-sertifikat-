@@ -31,9 +31,7 @@ input{border:1px solid #cbd5e1}
 
 <div class="card" id="menu">
 <h3>📝 Test ishlash</h3>
-<label>Ism va familiyangiz:</label>
-<input id="studentName" maxlength="60" placeholder="Ism Familiya" autocomplete="name">
-<label>6 belgili test kodi:</label>
+<label>Ism va familiyangiz:</label><input id="studentName" maxlength="60" placeholder="Ism Familiya"><br><label>6 belgili test kodi:</label>
 <input id="code" maxlength="6" placeholder="Masalan: XOR3YY">
 <button onclick="startTest()">Testni boshlash</button>
 <p class="note">Test savollari shu oynada ko‘rsatiladi.</p>
@@ -47,8 +45,11 @@ input{border:1px solid #cbd5e1}
 <h3 id="question"></h3>
 <div id="options"></div>
 <div id="writtenArea" style="display:none">
-<input id="written" placeholder="Javobingizni yozing">
-<button onclick="saveWritten()">Javobni saqlash</button>
+<label>A javobi</label>
+<input id="writtenA" placeholder="A javobini yozing">
+<label>B javobi</label>
+<input id="writtenB" placeholder="B javobini yozing">
+<button onclick="saveWritten()">Javoblarni saqlash</button>
 </div>
 <p id="status" class="note"></p>
 <div style="display:flex;gap:8px">
@@ -90,6 +91,8 @@ function showError(id, message) {
 }
 
 async function startTest() {
+  const studentName = document.getElementById('studentName').value.trim();
+  if (studentName.split(/\s+/).length < 2) { showError('error','Ism va familiyangizni kiriting.'); return; }
   code = document.getElementById('code').value.trim().toUpperCase();
   showError('error','');
   if (!/^[A-Z0-9]{6}$/.test(code)) {
@@ -97,12 +100,7 @@ async function startTest() {
     return;
   }
   try {
-    const studentName = document.getElementById('studentName').value.trim();
-  if (studentName.split(/\s+/).length < 2) {
-    showError('error','Ism va familiyangizni kiriting.');
-    return;
-  }
-  const data = await api('/api/start',{code, studentName});
+    const data = await api('/api/start',{code, studentName});
     questions = data.questions;
     index = 0;
     for (const key in answers) delete answers[key];
@@ -139,7 +137,11 @@ function renderQuestion() {
   document.getElementById('options').innerHTML='';
   document.getElementById('writtenArea').style.display =
     q.type==='written' ? 'block':'none';
-  document.getElementById('written').value=answers[q.number] || '';
+  const savedWritten = answers[q.number] || {};
+  document.getElementById('writtenA').value =
+    typeof savedWritten === 'object' ? (savedWritten.A || '') : savedWritten;
+  document.getElementById('writtenB').value =
+    typeof savedWritten === 'object' ? (savedWritten.B || '') : '';
   document.getElementById('status').textContent='';
   document.getElementById('testError').textContent='';
 
@@ -147,11 +149,15 @@ function renderQuestion() {
     document.getElementById('options').style.display='none';
   } else {
     document.getElementById('options').style.display='block';
-    ['A','B','C','D'].forEach(letter=>{
+    if(!parsed.options.length) {
+      document.getElementById('options').textContent =
+        'Variantlar savol matnida A), B), C), D) ko‘rinishida bo‘lishi kerak.';
+    }
+    parsed.options.forEach(opt=>{
       const b=document.createElement('button');
-      b.className='option'+(answers[q.number]===letter?' selected':'');
-      b.textContent=letter;
-      b.onclick=()=>saveChoice(letter);
+      b.className='option'+(answers[q.number]===opt.letter?' selected':'');
+      b.textContent=opt.letter+') '+opt.text;
+      b.onclick=()=>saveChoice(opt.letter);
       document.getElementById('options').appendChild(b);
     });
   }
@@ -178,14 +184,17 @@ async function saveChoice(letter) {
 }
 
 async function saveWritten() {
-  const q=questions[index];
-  const value=document.getElementById('written').value.trim();
+  const q = questions[index];
+  const value = {
+    A: document.getElementById('writtenA').value.trim(),
+    B: document.getElementById('writtenB').value.trim()
+  };
   try {
-    await api('/api/answer',{code,number:q.number,answer:value});
-    answers[q.number]=value;
-    document.getElementById('status').textContent='Javob saqlandi ✓';
+    await api('/api/answer', {code, number:q.number, answer:value});
+    answers[q.number] = value;
+    document.getElementById('status').textContent = 'A va B javoblari saqlandi ✓';
   } catch(e) {
-    showError('testError',e.message);
+    showError('testError', e.message);
   }
 }
 
