@@ -140,15 +140,11 @@ function renderQuestion() {
     document.getElementById('options').style.display='none';
   } else {
     document.getElementById('options').style.display='block';
-    if(!parsed.options.length) {
-      document.getElementById('options').textContent =
-        'Variantlar savol matnida A), B), C), D) ko‘rinishida bo‘lishi kerak.';
-    }
-    parsed.options.forEach(opt=>{
+    ['A','B','C','D'].forEach(letter=>{
       const b=document.createElement('button');
-      b.className='option'+(answers[q.number]===opt.letter?' selected':'');
-      b.textContent=opt.letter+') '+opt.text;
-      b.onclick=()=>saveChoice(opt.letter);
+      b.className='option'+(answers[q.number]===letter?' selected':'');
+      b.textContent=letter;
+      b.onclick=()=>saveChoice(letter);
       document.getElementById('options').appendChild(b);
     });
   }
