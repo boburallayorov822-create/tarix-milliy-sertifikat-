@@ -150,8 +150,7 @@ function renderQuestion() {
   } else {
     document.getElementById('options').style.display='block';
     if(!parsed.options.length) {
-      document.getElementById('options').textContent =
-        'Variantlar savol matnida A), B), C), D) ko‘rinishida bo‘lishi kerak.';
+      parsed.options = ['A','B','C','D'].map(letter=>({letter,text:''}));
     }
     parsed.options.forEach(opt=>{
       const b=document.createElement('button');
