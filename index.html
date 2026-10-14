@@ -31,6 +31,8 @@ input{border:1px solid #cbd5e1}
 
 <div class="card" id="menu">
 <h3>📝 Test ishlash</h3>
+<label>Ism va familiyangiz:</label>
+<input id="studentName" maxlength="60" placeholder="Ism Familiya" autocomplete="name">
 <label>6 belgili test kodi:</label>
 <input id="code" maxlength="6" placeholder="Masalan: XOR3YY">
 <button onclick="startTest()">Testni boshlash</button>
@@ -95,7 +97,12 @@ async function startTest() {
     return;
   }
   try {
-    const data = await api('/api/start',{code});
+    const studentName = document.getElementById('studentName').value.trim();
+  if (studentName.split(/\s+/).length < 2) {
+    showError('error','Ism va familiyangizni kiriting.');
+    return;
+  }
+  const data = await api('/api/start',{code, studentName});
     questions = data.questions;
     index = 0;
     for (const key in answers) delete answers[key];
