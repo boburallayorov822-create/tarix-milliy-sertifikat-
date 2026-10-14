@@ -114,7 +114,7 @@ async function startTest() {
 }
 
 function splitQuestion(text) {
-  const re = /(?:^|\s|[\r\n])([ABCD])[\).]\s*/g;
+  const re = /(?:^|\s|[\r\n])([A-F])[\).]\s*/g;
   const matches = [...String(text).matchAll(re)];
   if (matches.length < 2) return {stem:String(text),options:[]};
   const stem = String(text).slice(0,matches[0].index).trim();
