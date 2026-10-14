@@ -130,6 +130,7 @@ function splitQuestion(text) {
 function renderQuestion() {
   const q = questions[index];
   const parsed = splitQuestion(q.question || '');
+  if (Array.isArray(q.options) && q.options.length) parsed.options = q.options.map((v,i)=>typeof v==='string'?({letter:String.fromCharCode(65+i),text:v}):({letter:v.letter||String.fromCharCode(65+i),text:v.text||v.option||''}));
   document.getElementById('progress').textContent =
     `Savol ${index+1} / ${questions.length}`;
   document.getElementById('question').textContent =
