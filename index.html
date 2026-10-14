@@ -201,7 +201,8 @@ async function saveWritten() {
 async function move(step) {
   const q=questions[index];
   if(q.type==='written' &&
-     document.getElementById('written').value.trim()!==(answers[q.number]||'')) {
+     (document.getElementById('writtenA').value.trim()!==((answers[q.number]||{}).A||'') ||
+      document.getElementById('writtenB').value.trim()!==((answers[q.number]||{}).B||''))) {
     await saveWritten();
     if(document.getElementById('testError').textContent) return;
   }
@@ -213,7 +214,8 @@ async function finishTest() {
   if(!confirm('Testni yakunlaysizmi? Javoblaringiz tekshiriladi.')) return;
   const q=questions[index];
   if(q.type==='written' &&
-     document.getElementById('written').value.trim()!==(answers[q.number]||'')) {
+     (document.getElementById('writtenA').value.trim()!==((answers[q.number]||{}).A||'') ||
+      document.getElementById('writtenB').value.trim()!==((answers[q.number]||{}).B||''))) {
     await saveWritten();
     if(document.getElementById('testError').textContent) return;
   }
