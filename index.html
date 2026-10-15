@@ -249,7 +249,6 @@ async function finishTest() {
        <p>${result.name || ''}</p>
        <h1>${result.score} / ${result.total}</h1>
        <h3>Natija: ${result.percent}%</h3>
-       <h3>Daraja: ${result.level || 'MOCK'}</h3>
        <p>Natijangiz saqlandi.</p>
        ${result.certificate ? `<img src="${API}${result.certificate}" alt="Sinov sertifikati" style="width:100%;border-radius:12px;margin-top:12px"><a href="${API}${result.certificate}" download="sinov_sertifikati.png" style="display:block;text-align:center;padding:14px;background:#2459a9;color:white;border-radius:10px;margin-top:12px;text-decoration:none">📥 Sertifikatni yuklab olish</a>` : '<p>Sertifikat hozircha tayyor emas.</p>'}`;
   } catch (e) {
