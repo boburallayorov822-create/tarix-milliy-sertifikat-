@@ -150,7 +150,16 @@ function renderQuestion() {
     document.getElementById('options').style.display='none';
   } else {
     document.getElementById('options').style.display='block';
-    if(!parsed.options.length) {
+    if ([33, 34, 35].includes(Number(q.number))) {
+      for (const letter of ['A','B','C','D','E','F']) {
+        if (!parsed.options.some(opt =>
+          String(opt.letter).toUpperCase() === letter
+        )) {
+          parsed.options.push({letter, text:''});
+        }
+      }
+    }
+    if (!parsed.options.length) {
       parsed.options = ['A','B','C','D'].map(letter=>({letter,text:''}));
     }
     parsed.options.forEach(opt=>{
