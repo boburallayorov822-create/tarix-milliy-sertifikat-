@@ -15,8 +15,10 @@ button,input{width:100%;padding:13px;margin-top:9px;border-radius:10px;font-size
 button{border:0;background:#2459a9;color:white;font-weight:bold}
 button:disabled{opacity:.5}
 input{border:1px solid #cbd5e1}
-.option{background:#e8eef8;color:#172554;text-align:left;font-weight:normal}
-.option.selected{background:#2459a9;color:white}
+.option{display:flex;align-items:center;gap:12px;background:#fff;color:#172554;text-align:left;font-weight:normal;border:1px solid #dbe4f0;border-radius:14px;padding:14px;margin-top:10px;box-shadow:0 2px 5px rgba(23,59,117,.05);transition:background .15s,border-color .15s}
+.option::before{content:attr(data-letter);display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;height:32px;border:1px solid #cbd5e1;border-radius:50%;background:#f8fafc;color:#475569;font-weight:bold}
+.option.selected{background:#eaf3ff;color:#175cd3;border:1.5px solid #1677e8;box-shadow:0 0 0 2px rgba(22,119,232,.08)}
+.option.selected::before{background:#1677e8;border-color:#1677e8;color:#fff}
 .secondary{background:#e2e8f0;color:#172554}
 .note{color:#64748b;font-size:13px}
 #testArea{display:none}
@@ -165,6 +167,7 @@ function renderQuestion() {
     parsed.options.forEach(opt=>{
       const b=document.createElement('button');
       b.className='option'+(answers[q.number]===opt.letter?' selected':'');
+      b.setAttribute('data-letter', opt.letter);
       b.textContent=opt.letter+') '+opt.text;
       b.onclick=()=>saveChoice(opt.letter);
       document.getElementById('options').appendChild(b);
